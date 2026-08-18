@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light" data-set="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EnergiAI — Sesión</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="app auth-page">
+  <main class="auth-card">
+    <div class="lockup">
+      <img class="mark" src="/img/logo-mark.png" alt="">
+      <span class="word">Energi<span class="ai">AI</span></span>
+    </div>
+    <h1>Sesión iniciada</h1>
+    <p id="status" class="auth-welcome">Conectando…</p>
+    <label class="field-ctl" for="email">
+      <span>Email</span>
+      <input id="email" readonly>
+    </label>
+    <div class="cta-row">
+      <a class="btn primary" id="goApp" href="/index.html#inicio">Continuar</a>
+    </div>
+  </main>
+  <script>
+    const KEYS = { token: "energiai.token", email: "energiai.email", nombre: "energiai.nombre", next: "energiai.next" };
+    const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+    const query = new URLSearchParams(location.search);
+    const token = hash.get("token") || query.get("token");
+    const email = hash.get("email") || query.get("email") || "";
+    const nombre = hash.get("nombre") || query.get("nombre") || "";
+    const error = hash.get("error") || query.get("error");
+    const stay = query.get("stay") === "1" || hash.get("stay") === "1";
+    const next = sessionStorage.getItem(KEYS.next) || "/index.html#inicio";
+
+    if (query.get("token") && !hash.get("token")) {
+      history.replaceState(null, "", location.pathname + "#" + query.toString());
+    }
+
+    document.documentElement.dataset.theme = localStorage.getItem("energiai-theme") || "light";
+    document.getElementById("email").value = email;
+    document.getElementById("goApp").href = next;
+
+    const status = document.getElementById("status");
+    if (error || !token) {
+      if (stay) {
+        status.textContent = error ? "Hubo un error al iniciar sesión." : "No se pudo completar el inicio de sesión.";
+      } else {
+        sessionStorage.setItem("energiai.authError",
+          error ? "No se pudo entrar con Google. Probá email y contraseña." : "No se pudo completar el inicio de sesión.");
+        location.replace("/index.html#entrar");
+      }
+    } else if (token) {
+      localStorage.setItem(KEYS.token, token);
+      localStorage.setItem(KEYS.email, email);
+      if (nombre) localStorage.setItem(KEYS.nombre, nombre);
+      status.textContent = "¡Bienvenido! Redirigiendo…";
+      if (!stay) {
+        location.replace(next.includes("#entrar") ? "/index.html#inicio" : next);
+      }
+    }
+  </script>
+</body>
+</html>

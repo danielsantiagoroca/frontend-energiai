@@ -1,0 +1,3 @@
+# Netlify SPA routing
+# Todas las rutas redirigen a index.html para que el router del frontend maneje las rutas
+/*    /index.html   200
