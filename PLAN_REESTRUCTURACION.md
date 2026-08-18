@@ -359,3 +359,132 @@ La opción 2 es más limpia para SPA.
 3. **Configurar CORS** en el backend
 4. **Implementar cambios** fase por fase
 5. **Deploy y testing** en Netlify
+
+---
+
+## 11. Evaluación: Next.js vs Stack Actual
+
+### 11.1 Contexto del Proyecto
+
+| Aspecto | Valor |
+|---------|-------|
+| Pantallas | 5 (inicio, análisis, resultados, historial, login) |
+| Backend | API REST separada (Spring Boot) |
+| Deploy | Netlify (soporta Next.js y static sites) |
+| Diseño | Paleta y layout ya definidos |
+| Complejidad | Baja-media (formulario + auth + historial) |
+
+### 11.2 Pros de Next.js
+
+| Ventaja | Relevancia para EnergiAI |
+|---------|--------------------------|
+| **Routing basado en archivos** | ⭐⭐ Útil, pero solo hay 5 rutas |
+| **Server-side rendering (SSR)** | ⭐ No necesario: datos vienen de API después de login |
+| **Static generation (SSG)** | ⭐ La landing podría beneficiarse, pero es simple |
+| **Componentes React** | ⭐⭐⭐ Mejor organización del código UI |
+| **Hot reload en desarrollo** | ⭐⭐ Ya funciona con cualquier dev server |
+| **Optimización automática** | ⭐⭐ Útil para imágenes (aunque solo hay logo) |
+| **Ecosystem React** | ⭐⭐ Acceso a librerías como React Hook Form, Zustand |
+| **TypeScript nativo** | ⭐⭐⭐ Mejor DX y menos bugs |
+
+### 11.3 Contras de Next.js
+
+| Desventaja | Impacto en EnergiAI |
+|------------|---------------------|
+| **Curva de aprendizaje** | 🔴 Requiere conocer React + Next.js |
+| **Build más complejo** | 🟡 node_modules, npm install, build step |
+| **Overhead de runtime** | 🟡 ~100KB+ de JS vs ~50KB actual |
+| **Migración necesaria** | 🔴 Reescribir todo el código a componentes React |
+| **Complejidad innecesaria** | 🟡 App Router, layouts, middleware no se usan |
+| **Deploy más pesado** | 🟡 Netlify Functions para SSR (si se usa) |
+
+### 11.4 Comparación Directa
+
+| Criterio | Stack Actual (HTML/CSS/JS) | Next.js |
+|----------|---------------------------|---------|
+| **Tiempo de carga** | ~50KB, instantáneo | ~150KB+, similar |
+| **SEO** | Suficiente (landing estática) | Mejor con SSR (no necesario) |
+| **Mantenibilidad** | Un archivo grande (app.js) | Componentes separados |
+| **Onboarding** | Cualquiera con JS básico | Requiere React |
+| **Deploy** | Archivos estáticos | Build + deploy |
+| **Testing** | Manual / básico | Jest + React Testing Library |
+| **Tiempo de migración** | 0 | 2-4 días |
+
+### 11.5 Escenarios donde Next.js Conviene
+
+1. **Si el proyecto crece** a 10+ pantallas con estados complejos
+2. **Si se agregan features** como dashboard, comparaciones, reportes
+3. **Si hay equipo** con experiencia en React
+4. **Si se necesita SSR/SEO** para páginas públicas con datos dinámicos
+
+### 11.6 Escenarios donde el Stack Actual Conviene
+
+1. **Proyecto pequeño y estable** (5 pantallas, alcance definido)
+2. **Desarrollador único** sin necesidad de componentización extrema
+3. **Prioridad en velocidad** de desarrollo sobre arquitectura
+4. **Sin planes de expansión** significativa
+
+### 11.7 Alternativas Intermedias
+
+Si se busca mejor organización sin la complejidad de Next.js:
+
+| Opción | Descripción | Esfuerzo |
+|--------|-------------|----------|
+| **Modularizar app.js** | Separar en módulos ES6 (render.js, api.js, auth.js) | 1 día |
+| **Preact** | React-like con 3KB, sin build obligatorio | 1-2 días |
+| **Lit** | Web Components estándar, 5KB | 2 días |
+| **Alpine.js** | Reactividad sin build, sintaxis en HTML | 1 día |
+
+### 11.8 Recomendación Final
+
+**➡️ Mantener el stack actual (HTML/CSS/JS plano)**
+
+**Justificación:**
+
+1. **Proporción costo/beneficio**: Migrar a Next.js tomaría 2-4 días para obtener beneficios marginales en un proyecto de 5 pantallas.
+
+2. **Complejidad actual es manejable**: `app.js` tiene ~1200 líneas. Es grande pero navegable. Una refactorización a módulos ES6 resolvería la organización sin cambiar de framework.
+
+3. **No hay pain points que Next.js resuelva**:
+   - No hay SEO dinámico necesario
+   - No hay data fetching complejo (todo es JWT + fetch)
+   - No hay composición de componentes profunda
+
+4. **Netlify funciona perfecto con static**: `_redirects` ya maneja el SPA routing.
+
+5. **Inversión mejor usada en**:
+   - Completar OAuth con Google SDK
+   - Agregar PWA (offline support)
+   - Mejorar UX del formulario
+
+**Acción recomendada:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  MANTENER STACK ACTUAL + MODULARIZAR                        │
+├─────────────────────────────────────────────────────────────┤
+│  1. Separar app.js en módulos:                              │
+│     - /js/api.js (fetch, auth)                              │
+│     - /js/router.js (navegación)                            │
+│     - /js/views/*.js (una por pantalla)                     │
+│     - /js/state.js (estado global)                          │
+│                                                             │
+│  2. Usar ES modules nativos (type="module")                 │
+│                                                             │
+│  3. Evaluar Next.js cuando:                                 │
+│     - Se agreguen 5+ pantallas nuevas                       │
+│     - Se necesite colaboración con devs React               │
+│     - Se requiera SSR para SEO                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 12. Decisiones Pendientes
+
+| Decisión | Opciones | Impacto |
+|----------|----------|---------|
+| Framework frontend | Mantener JS plano ✅ / Migrar a Next.js | Alto |
+| Modularización | Un archivo / Módulos ES6 | Medio |
+| OAuth en SPA | Google SDK directo / Proxy backend | Medio |
+| PWA | Agregar / No agregar | Bajo |
