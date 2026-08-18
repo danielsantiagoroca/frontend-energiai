@@ -74,16 +74,50 @@ export async function empezarGoogle() {
     else render();
     return;
   }
-  try {
-    const info = await api('/api/auth/proveedores', { auth: false });
-    if (!info.google) {
-      state.error = 'Google no está disponible en este entorno. Entrá con email y contraseña.';
-      if (state.screen !== 'entrar') queueLogin('login');
-      else render();
-      return;
+  
+  if (typeof google === 'undefined' || !google.accounts) {
+    state.error = 'El SDK de Google no está disponible. Recargá la página o probá con email y contraseña.';
+    render();
+    return;
+  }
+  
+  google.accounts.id.prompt((notification) => {
+    if (notification.isNotDisplayed()) {
+      console.log('Google One Tap no mostrado:', notification.getNotDisplayedReason());
     }
-  } catch (_) { /* si el probe falla, igual intentamos el flujo del IdP */ }
-  location.assign('/oauth2/authorization/google');
+    if (notification.isSkippedMoment()) {
+      console.log('Google One Tap omitido:', notification.getSkippedReason());
+    }
+  });
+}
+
+export async function autenticarConGoogle(idToken) {
+  state.error = null;
+  state.notice = null;
+  state.loading = true;
+  render();
+  
+  try {
+    const body = await api('/api/auth/oauth/google', {
+      method: 'POST',
+      body: { token: idToken },
+      auth: false
+    });
+    
+    if (!body.token) throw new Error('El servidor no devolvió un token.');
+    
+    applyAuth(body.token, body.email, body.nombre);
+    state.loading = false;
+    
+    const next = sessionStorage.getItem(KEYS.next) || '/index.html#inicio';
+    let hash = next.includes('#') ? next.slice(next.indexOf('#') + 1) : 'inicio';
+    if (!hash || hash.startsWith('entrar')) hash = 'inicio';
+    go(hash);
+  } catch (err) {
+    state.loading = false;
+    state.error = err.message || 'Error al autenticar con Google.';
+    render();
+  }
 }
 
 export async function enviarAuth(path, payload) {

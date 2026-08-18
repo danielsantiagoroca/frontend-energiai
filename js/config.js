@@ -12,7 +12,8 @@ export const CONFIG = {
     return 'https://146.181.33.44:8080';
   })(),
   OAUTH_ENABLED: true,
-  VERSION: '2.1.0'
+  VERSION: '2.1.0',
+  GOOGLE_CLIENT_ID: '330192952305-2a8kp3djq5fj1akc3ncl9tl4u1m4dkfa.apps.googleusercontent.com'
 };
 
 export const KEYS = {

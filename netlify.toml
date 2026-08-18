@@ -1,6 +1,9 @@
 [build]
   publish = "."
 
+# Variables de entorno necesarias (configurar en Netlify Dashboard):
+# - GOOGLE_CLIENT_ID: ID de cliente OAuth de Google (ej: 123456789-abc.apps.googleusercontent.com)
+
 # Headers de seguridad
 [[headers]]
   for = "/*"

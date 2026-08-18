@@ -61,6 +61,14 @@ export function render() {
   root.innerHTML = `<div class="device" data-device="${state.device}" data-set="${state.set}" data-theme="${state.theme}"><div class="shell ${state.device === 'web' && !a11y ? '' : 'stack'}" style="${state.device !== 'web' || a11y ? 'flex-direction:column' : ''}">${html}</div></div>`;
   applyChrome();
   bindForm();
+  
+  if (state.screen === 'entrar') {
+    requestAnimationFrame(() => {
+      import('./app.js').then(({ renderGoogleButton }) => {
+        if (renderGoogleButton) renderGoogleButton();
+      });
+    });
+  }
 }
 
 function bindForm() {

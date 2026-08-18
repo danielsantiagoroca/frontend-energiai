@@ -3,14 +3,15 @@
  * Módulo ES6
  */
 
-import { KEYS } from './config.js';
+import { KEYS, CONFIG } from './config.js';
 import { state, logout, defaultForm } from './state.js';
 import { $ } from './utils.js';
 import { deviceDe } from './utils.js';
 import { 
   ingestOAuthHash, 
   probeSession, 
-  empezarGoogle, 
+  empezarGoogle,
+  autenticarConGoogle,
   analizar, 
   guardarAnalisis, 
   abrirDetalle,
@@ -19,6 +20,53 @@ import {
 } from './api.js';
 import { go, render, onRoute, parseHash, initRouter } from './router.js';
 import { speak } from './components.js';
+
+let googleInitialized = false;
+
+function initGoogleSignIn() {
+  if (googleInitialized || typeof google === 'undefined' || !google.accounts) {
+    return;
+  }
+  
+  google.accounts.id.initialize({
+    client_id: CONFIG.GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredentialResponse,
+    auto_select: false,
+    cancel_on_tap_outside: true
+  });
+  
+  googleInitialized = true;
+}
+
+function handleGoogleCredentialResponse(response) {
+  if (response.credential) {
+    autenticarConGoogle(response.credential);
+  }
+}
+
+export function renderGoogleButton() {
+  const container = document.getElementById('google-signin-btn');
+  const fallbackBtn = document.querySelector('.google-fallback');
+  
+  if (!container) return;
+  
+  if (typeof google === 'undefined' || !google.accounts) {
+    if (fallbackBtn) fallbackBtn.style.display = 'flex';
+    return;
+  }
+  
+  initGoogleSignIn();
+  
+  google.accounts.id.renderButton(container, {
+    type: 'standard',
+    theme: state.theme === 'dark' ? 'filled_black' : 'outline',
+    size: 'large',
+    text: 'continue_with',
+    shape: 'rectangular',
+    width: 280,
+    locale: 'es'
+  });
+}
 
 async function initApp() {
   initRouter();
