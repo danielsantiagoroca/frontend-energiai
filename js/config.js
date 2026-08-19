@@ -9,7 +9,9 @@ export const CONFIG = {
     if (host === 'localhost' || host === '127.0.0.1') {
       return 'http://localhost:8080';
     }
-    return 'https://146.181.33.44:8080';
+    // En producción (Netlify), usar rutas relativas.
+    // El proxy en netlify.toml reenvía /api/* a OCI.
+    return '';
   })(),
   OAUTH_ENABLED: true,
   VERSION: '2.1.0',

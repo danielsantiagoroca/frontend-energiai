@@ -1,8 +1,19 @@
 [build]
   publish = "."
 
-# Variables de entorno necesarias (configurar en Netlify Dashboard):
-# - GOOGLE_CLIENT_ID: ID de cliente OAuth de Google (ej: 123456789-abc.apps.googleusercontent.com)
+# Proxy: las llamadas a /api/* van a OCI (evita mixed-content HTTPS→HTTP)
+[[redirects]]
+  from = "/api/*"
+  to = "http://146.181.33.44:8080/api/:splat"
+  status = 200
+  force = true
+
+# OAuth endpoints también necesitan proxy
+[[redirects]]
+  from = "/oauth2/*"
+  to = "http://146.181.33.44:8080/oauth2/:splat"
+  status = 200
+  force = true
 
 # Headers de seguridad
 [[headers]]
