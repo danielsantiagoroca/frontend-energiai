@@ -1,3 +1,2 @@
-# Netlify SPA routing
-# Todas las rutas redirigen a index.html para que el router del frontend maneje las rutas
-/*    /index.html   200
+/api/*  http://146.181.33.44:8080/api/:splat  200
+/oauth2/*  http://146.181.33.44:8080/oauth2/:splat  200
