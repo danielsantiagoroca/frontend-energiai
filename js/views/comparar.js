@@ -6,6 +6,7 @@ import { state } from '../state.js';
 import { MESES } from '../config.js';
 import { esc, fmt, fmtMoney, pick, labelMesItem, etiquetaCat } from '../utils.js';
 import { chromeA11y, chromeId, headerId, alertBox } from '../components.js';
+import { t } from '../i18n.js';
 
 function selectPeriodo(id, label, selected) {
   const items = state.historial || [];
@@ -21,7 +22,7 @@ function selectPeriodo(id, label, selected) {
     <div class="field-ctl">
       <label for="${id}">${esc(label)}</label>
       <select id="${id}" name="${id}">
-        <option value="">Seleccioná un período</option>
+        <option value="">${t('comparar.selecciona')}</option>
         ${opts}
       </select>
     </div>`;
@@ -55,7 +56,7 @@ function comparacionHtml(a, b) {
 
   return `
     <div class="stamp" style="background: var(--surface); color: var(--text)">
-      <h2 style="margin:0;color:inherit">Comparación</h2>
+      <h2 style="margin:0;color:inherit">${t('comparar.titulo')}</h2>
       <div class="costos-grid" style="margin-top: 12px">
         <div class="field">
           <div class="caption">${esc(labelMesItem(a))}</div>
@@ -73,31 +74,31 @@ function comparacionHtml(a, b) {
     <div class="bento" style="margin-top: 16px">
       <article class="card">
         <div class="stripe"></div>
-        <div class="caption">Consumo</div>
+        <div class="caption">${t('resultados.consumo')}</div>
         <h2 style="${color(diffConsumo)}">${arrow(diffConsumo)} ${Math.abs(diffConsumo).toFixed(0)} kWh</h2>
-        <p>${pctConsumo > 0 ? '+' : ''}${pctConsumo}% vs período anterior</p>
+        <p>${pctConsumo > 0 ? '+' : ''}${pctConsumo}% ${t('comparar.vsPeriodo')}</p>
       </article>
       <article class="card">
         <div class="stripe"></div>
-        <div class="caption">Costo</div>
+        <div class="caption">${t('comparar.costo')}</div>
         <h2 style="${color(diffCosto)}">${arrow(diffCosto)} ${fmtMoney(Math.abs(diffCosto))} USD</h2>
-        <p>${pctCosto > 0 ? '+' : ''}${pctCosto}% vs período anterior</p>
+        <p>${pctCosto > 0 ? '+' : ''}${pctCosto}% ${t('comparar.vsPeriodo')}</p>
       </article>
       <article class="card">
         <div class="stripe"></div>
-        <div class="caption">Huella de carbono</div>
+        <div class="caption">${t('resultados.huella')}</div>
         <h2 style="${color(diffHuella)}">${arrow(diffHuella)} ${fmt(Math.abs(diffHuella), 1)} kg CO₂</h2>
-        <p>${diffHuella > 0 ? 'Aumentó' : diffHuella < 0 ? 'Disminuyó' : 'Sin cambios'}</p>
+        <p>${diffHuella > 0 ? t('comparar.aumento') : diffHuella < 0 ? t('comparar.disminuyo') : t('comparar.sinCambios')}</p>
       </article>
     </div>
 
     ${diffConsumo < 0 ? `
       <div class="alert notice" style="margin-top: 16px">
-        ¡Buen trabajo! Redujiste tu consumo en ${Math.abs(diffConsumo).toFixed(0)} kWh (${Math.abs(pctConsumo)}%).
+        ${t('comparar.buenTrabajo').replace('{kwh}', Math.abs(diffConsumo).toFixed(0)).replace('{pct}', Math.abs(pctConsumo))}
       </div>
     ` : diffConsumo > 0 ? `
       <div class="alert" style="margin-top: 16px">
-        Tu consumo aumentó ${diffConsumo.toFixed(0)} kWh (${pctConsumo}%). Revisá las recomendaciones para mejorar.
+        ${t('comparar.consumoAumento').replace('{kwh}', diffConsumo.toFixed(0)).replace('{pct}', pctConsumo)}
       </div>
     ` : ''}
   `;
@@ -112,11 +113,11 @@ export function renderComparar() {
       ${a11y ? chromeA11y() : chromeId()}
       <div class="main" id="contenido">
         ${headerId()}
-        <h1>Comparar períodos</h1>
-        <p>Entrá con tu cuenta para comparar tu desempeño entre dos períodos.</p>
+        <h1>${t('comparar.titulo')}</h1>
+        <p>${t('comparar.loginVer')}</p>
         <div class="cta-row">
-          <button class="btn primary" type="button" data-action="login" data-next="#comparar">Entrar</button>
-          <button class="btn ghost" type="button" data-go="inicio">Volver al inicio</button>
+          <button class="btn primary" type="button" data-action="login" data-next="#comparar">${t('auth.entrar')}</button>
+          <button class="btn ghost" type="button" data-go="inicio">${t('comparar.volverInicio')}</button>
         </div>
       </div>`;
   }
@@ -126,11 +127,11 @@ export function renderComparar() {
       ${a11y ? chromeA11y() : chromeId()}
       <div class="main" id="contenido">
         ${headerId()}
-        <h1>Comparar períodos</h1>
-        <p>Necesitás al menos dos análisis guardados para comparar. Actualmente tenés ${items.length}.</p>
+        <h1>${t('comparar.titulo')}</h1>
+        <p>${t('comparar.necesitas').replace('{n}', items.length)}</p>
         <div class="cta-row">
-          <button class="btn primary" type="button" data-go="analisis">Hacer un análisis</button>
-          <button class="btn ghost" type="button" data-go="historial">Ver historial</button>
+          <button class="btn primary" type="button" data-go="analisis">${t('comparar.hacerAnalisis')}</button>
+          <button class="btn ghost" type="button" data-go="historial">${t('resultados.verHistorial')}</button>
         </div>
       </div>`;
   }
@@ -145,23 +146,23 @@ export function renderComparar() {
     <div class="main" id="contenido">
       ${headerId()}
       ${alertBox()}
-      <h1>Comparar períodos</h1>
-      <p>Seleccioná dos períodos para ver cómo evolucionó tu consumo.</p>
+      <h1>${t('comparar.titulo')}</h1>
+      <p>${t('comparar.seleccionaDos')}</p>
 
       <div class="fields" style="margin: 16px 0">
-        ${selectPeriodo('comparar-a', 'Período inicial', periodoA)}
-        ${selectPeriodo('comparar-b', 'Período final', periodoB)}
+        ${selectPeriodo('comparar-a', t('comparar.periodo1'), periodoA)}
+        ${selectPeriodo('comparar-b', t('comparar.periodo2'), periodoB)}
       </div>
 
       ${itemA && itemB ? comparacionHtml(itemA, itemB) : `
         <div class="card">
-          <p>Seleccioná dos períodos arriba para ver la comparación.</p>
+          <p>${t('comparar.seleccionaArriba')}</p>
         </div>
       `}
 
       <div class="cta-row" style="margin-top: 20px">
-        <button class="btn ghost" type="button" data-go="historial">Ver historial completo</button>
-        <button class="btn ghost" type="button" data-go="analisis">Nuevo análisis</button>
+        <button class="btn ghost" type="button" data-go="historial">${t('comparar.verHistorialCompleto')}</button>
+        <button class="btn ghost" type="button" data-go="analisis">${t('resultados.nuevoAnalisis')}</button>
       </div>
     </div>`;
 }

@@ -6,13 +6,14 @@ import { state } from '../state.js';
 import { MESES } from '../config.js';
 import { esc, etiquetaCat, fmt, fmtMoney, pick, pctLabel, labelMesItem, formatTendencia, probabilidadesHtml, mesNumero } from '../utils.js';
 import { chromeA11y, chromeId, headerId, alertBox, hatch } from '../components.js';
+import { t } from '../i18n.js';
 
 function recsHtml(lista) {
-  const items = (lista && lista.length ? lista : ['Sin recomendaciones en este registro.']).slice(0, 3);
-  return items.map((t, i) => `
+  const items = (lista && lista.length ? lista : [t('resultados.sinRecs')]).slice(0, 3);
+  return items.map((txt, i) => `
     <div class="rec">
       <span class="n">${String(i + 1).padStart(2, '0')}</span>
-      <div><p style="color:inherit">${esc(t)}</p></div>
+      <div><p style="color:inherit">${esc(txt)}</p></div>
     </div>`).join('');
 }
 
@@ -25,7 +26,7 @@ function probsHtml(result) {
   const probs = probabilidadesHtml(result);
   if (!probs || !probs.length) return '';
   return `<div class="stack" style="margin-bottom:12px">
-    <div class="caption">Probabilidad por categoría</div>
+    <div class="caption">${t('resultados.probCat')}</div>
     <div class="costos-grid">${probs.map((p) => 
       `<div class="field"><div class="caption">${esc(p.label)}</div><div class="val">${p.pct}%</div></div>`
     ).join('')}</div>
@@ -38,34 +39,34 @@ function costosHtml(costos, resumen, result) {
   const iie = result ? pick(result, 'indiceEficiencia', 'indice_eficiencia') : null;
   const proy = c.proyeccion_estacional || c.proyeccionEstacional || [];
   const filas = [
-    cifra('Costo base', c.costo_bruto_mensual != null ? `${fmtMoney(c.costo_bruto_mensual)} USD` : null),
-    cifra('Costo con recargos', c.costo_ajustado_mensual != null ? `${fmtMoney(c.costo_ajustado_mensual)} USD` : null),
-    cifra('Estación', c.estacion),
-    cifra('Recargo estacional', pctLabel(c.pct_estacional)),
-    cifra('Recargo horario pico', pctLabel(c.pct_horario_pico)),
-    cifra('Recargo sin LED', pctLabel(c.pct_sin_led)),
-    cifra('Recargo equipos antiguos', pctLabel(c.pct_antiguedad)),
-    cifra('Ahorro posible / mes', c.ahorro_potencial_mensual != null ? `${fmtMoney(c.ahorro_potencial_mensual)} USD` : null),
-    cifra('Ahorro posible / año', c.ahorro_potencial_anual != null ? `${fmtMoney(c.ahorro_potencial_anual)} USD` : null),
-    cifra('Consumo por persona', iie != null ? `${fmt(iie, 1)} kWh` : null),
-    cifra('Tendencia', formatTendencia(r.tendencia)),
-    cifra('Análisis previos', r.analisis_previos != null ? r.analisis_previos : null),
-    cifra('Promedio anterior', r.consumo_promedio_kwh != null ? `${fmt(r.consumo_promedio_kwh, 0)} kWh` : null)
+    cifra(t('resultados.costoBase'), c.costo_bruto_mensual != null ? `${fmtMoney(c.costo_bruto_mensual)} USD` : null),
+    cifra(t('resultados.costoRecargos'), c.costo_ajustado_mensual != null ? `${fmtMoney(c.costo_ajustado_mensual)} USD` : null),
+    cifra(t('resultados.estacion'), c.estacion),
+    cifra(t('resultados.recargoEstacion'), pctLabel(c.pct_estacional)),
+    cifra(t('resultados.recargoPico'), pctLabel(c.pct_horario_pico)),
+    cifra(t('resultados.recargoLed'), pctLabel(c.pct_sin_led)),
+    cifra(t('resultados.recargoAntiguos'), pctLabel(c.pct_antiguedad)),
+    cifra(t('resultados.ahorroMes'), c.ahorro_potencial_mensual != null ? `${fmtMoney(c.ahorro_potencial_mensual)} USD` : null),
+    cifra(t('resultados.ahorroAnio'), c.ahorro_potencial_anual != null ? `${fmtMoney(c.ahorro_potencial_anual)} USD` : null),
+    cifra(t('resultados.consumoPersona'), iie != null ? `${fmt(iie, 1)} kWh` : null),
+    cifra(t('resultados.tendencia'), formatTendencia(r.tendencia)),
+    cifra(t('resultados.analisisPrevios'), r.analisis_previos != null ? r.analisis_previos : null),
+    cifra(t('resultados.promedioAnterior'), r.consumo_promedio_kwh != null ? `${fmt(r.consumo_promedio_kwh, 0)} kWh` : null)
   ].join('');
   const proj = Array.isArray(proy) && proy.length
-    ? `<div class="stack"><h2 style="margin:0;color:inherit">Proyección por estación</h2><div class="costos-grid">${proy.map((p) =>
-        cifra(p.estacion + (p.es_estacion_actual || p.esEstacionActual ? ' (actual)' : ''),
+    ? `<div class="stack"><h2 style="margin:0;color:inherit">${t('resultados.proyeccion')}</h2><div class="costos-grid">${proy.map((p) =>
+        cifra(p.estacion + (p.es_estacion_actual || p.esEstacionActual ? ` (${t('resultados.actual')})` : ''),
           fmtMoney(pick(p, 'costo_mensual_estimado', 'costoMensualEstimado')) + ' USD')).join('')}</div></div>`
     : '';
   const probabilidades = probsHtml(result);
   if (!filas.replace(/\s/g, '') && !proj && !probabilidades) {
-    return `<p>Entrá con tu cuenta para ver el desglose de costos y tu historial.</p>`;
+    return `<p>${t('resultados.loginDesglose')}</p>`;
   }
   return `${probabilidades}<div class="costos-grid">${filas}</div>${proj}`;
 }
 
 export function chartHistorial(items, filtrar12 = false) {
-  if (!items.length) return '<p>No hay análisis guardados todavía.</p>';
+  if (!items.length) return `<p>${t('historial.vacio')}</p>`;
   const sorted = [...items].sort((a, b) => {
     const anioA = pick(a, 'anio') || new Date(pick(a, 'creadoEn', 'creado_en')).getFullYear();
     const anioB = pick(b, 'anio') || new Date(pick(b, 'creadoEn', 'creado_en')).getFullYear();
@@ -119,11 +120,11 @@ export function chartHistorial(items, filtrar12 = false) {
   }).join('');
   return `
     <div class="chart-legend">
-      <span><i class="kwh"></i>Consumo</span>
-      ${conHuella.length ? `<span><i class="co2"></i>Huella de carbono</span>` : ''}
+      <span><i class="kwh"></i>${t('resultados.consumo')}</span>
+      ${conHuella.length ? `<span><i class="co2"></i>${t('resultados.huella')}</span>` : ''}
     </div>
     <div class="chart-wrap">
-      <svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="Historial de consumo">
+      <svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${t('historial.titulo')}">
         ${yLabels}${groups}
       </svg>
     </div>`;
@@ -137,11 +138,11 @@ export function renderResultados() {
       ${a11y ? chromeA11y() : chromeId()}
       <div class="main" id="contenido">
         ${headerId()}
-        <h1>Todavía no hay un resultado</h1>
-        <p>Completá un análisis o abrí una barra del historial.</p>
+        <h1>${t('resultados.sinResultado')}</h1>
+        <p>${t('resultados.completaAnalisis')}</p>
         <div class="cta-row">
-          <button class="btn primary" type="button" data-go="analisis">Ir al análisis</button>
-          <button class="btn ghost" type="button" data-go="historial">Historial</button>
+          <button class="btn primary" type="button" data-go="analisis">${t('resultados.irAnalisis')}</button>
+          <button class="btn ghost" type="button" data-go="historial">${t('nav.historial')}</button>
         </div>
       </div>`;
   }
@@ -162,25 +163,25 @@ export function renderResultados() {
       <div class="split">
         <div class="stamp">
           ${hatch(state.device === 'mobile' ? 8 : 12)}
-          <div class="caption" style="color:var(--green)">Tu perfil de consumo</div>
+          <div class="caption" style="color:var(--green)">${t('resultados.tuPerfil')}</div>
           <h1 class="display" style="color:inherit">${esc(cat)}</h1>
-          <h2 style="margin:0;color:var(--green);font-size:28px">${fmtMoney(costo)} USD / mes</h2>
+          <h2 style="margin:0;color:var(--green);font-size:28px">${fmtMoney(costo)} USD / ${t('resultados.mes')}</h2>
           <p style="color:inherit">${fmt(consumo, 0)} kWh${huella != null
             ? ` · ${fmt(huella, 1)} kg CO₂`
             : ''}</p>
         </div>
         <div class="stack">
-          <h2 style="margin:0;color:inherit">Tres acciones sugeridas</h2>
+          <h2 style="margin:0;color:inherit">${t('resultados.tresAcciones')}</h2>
           ${recsHtml(recs)}
         </div>
       </div>
       ${costosHtml(costos, resumen, r)}
-      ${state.auth && state.historial.length ? `<h2 style="margin:0;color:inherit">Tu historial</h2>${chartHistorial(state.historial)}` : ''}
+      ${state.auth && state.historial.length ? `<h2 style="margin:0;color:inherit">${t('historial.titulo')}</h2>${chartHistorial(state.historial)}` : ''}
       <div class="cta-row">
-        <button class="btn primary" type="button" data-go="analisis">Otro análisis</button>
-        ${!state.auth ? `<button class="btn navy" type="button" data-action="login" data-next="#resultados">Entra para guardar</button>` : ''}
-        ${state.auth && r.guardado === false ? `<button class="btn navy" type="button" data-action="guardar">Guardar en historial</button>` : ''}
-        <button class="btn ghost" type="button" data-go="historial">Ver historial</button>
+        <button class="btn primary" type="button" data-go="analisis">${t('resultados.nuevoAnalisis')}</button>
+        ${!state.auth ? `<button class="btn navy" type="button" data-action="login" data-next="#resultados">${t('resultados.entrarGuardar')}</button>` : ''}
+        ${state.auth && r.guardado === false ? `<button class="btn navy" type="button" data-action="guardar">${t('resultados.guardar')}</button>` : ''}
+        <button class="btn ghost" type="button" data-go="historial">${t('resultados.verHistorial')}</button>
       </div>
     </div>`;
 }
