@@ -101,8 +101,9 @@ export function sanitizeResult(r) {
 
 export function labelMesItem(item) {
   const n = mesNumero(pick(item, 'mes', 'month'));
+  const anio = pick(item, 'anio');
   const creado = pick(item, 'creadoEn', 'creado_en');
-  const y = creado ? new Date(creado).getFullYear() : '';
+  const y = anio || (creado ? new Date(creado).getFullYear() : '');
   const corto = n ? MESES[n].slice(0, 3) : '?';
   return y ? `${corto} ${String(y).slice(2)}` : corto;
 }

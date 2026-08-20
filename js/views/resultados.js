@@ -64,9 +64,9 @@ function costosHtml(costos, resumen, result) {
   return `${probabilidades}<div class="costos-grid">${filas}</div>${proj}`;
 }
 
-export function chartHistorial(items) {
+export function chartHistorial(items, filtrar12 = false) {
   if (!items.length) return '<p>No hay análisis guardados todavía.</p>';
-  const ordered = [...items].sort((a, b) => {
+  const sorted = [...items].sort((a, b) => {
     const anioA = pick(a, 'anio') || new Date(pick(a, 'creadoEn', 'creado_en')).getFullYear();
     const anioB = pick(b, 'anio') || new Date(pick(b, 'creadoEn', 'creado_en')).getFullYear();
     if (anioA !== anioB) return anioA - anioB;
@@ -74,6 +74,7 @@ export function chartHistorial(items) {
     const mesB = mesNumero(pick(b, 'mes', 'month')) || 0;
     return mesA - mesB;
   });
+  const ordered = filtrar12 ? sorted.slice(-12) : sorted;
   const kwhs = ordered.map((it) => Number(pick(it, 'consumoMensual', 'consumo_mensual')) || 0);
   const co2s = ordered.map((it) => {
     const v = pick(it, 'huella_carbono_kg_co2e_mes', 'huellaCarbonoKgCo2eMes');

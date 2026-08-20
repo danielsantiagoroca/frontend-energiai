@@ -22,6 +22,8 @@ export function renderHistorial() {
         </div>
       </div>`;
   }
+  const total = state.historial.length;
+  const showFilter = total > 12;
   return `
     ${a11y ? chromeA11y() : chromeId()}
     <div class="main" id="contenido">
@@ -29,6 +31,10 @@ export function renderHistorial() {
       <h1>Tu historial</h1>
       <p>Tus análisis guardados. Tocá una barra para ver el detalle.</p>
       ${alertBox()}
-      ${state.loading ? '<p>Cargando…</p>' : chartHistorial(state.historial)}
+      ${showFilter ? `<div class="checks" style="margin-bottom:12px">
+        <label class="check"><input type="checkbox" name="filtrar12" ${state.historialFiltrar12 ? 'checked' : ''}> Mostrar solo últimos 12 meses</label>
+        <span class="caption" style="margin-left:8px">(${total} análisis en total)</span>
+      </div>` : ''}
+      ${state.loading ? '<p>Cargando…</p>' : chartHistorial(state.historial, state.historialFiltrar12)}
     </div>`;
 }

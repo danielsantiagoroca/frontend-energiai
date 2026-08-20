@@ -3,7 +3,7 @@
  */
 
 import { CONFIG, KEYS } from './config.js';
-import { state, applyAuth, expireSession, facturaPayload, persistSession, defaultForm } from './state.js';
+import { state, applyAuth, expireSession, facturaPayload, persistSession, defaultForm, savePerfilHogar, aplicarPerfilDesdeHistorial } from './state.js';
 import { sanitizeResult, esIpPrivada } from './utils.js';
 
 let _go, _render;
@@ -107,6 +107,7 @@ export async function autenticarConGoogle(idToken) {
     if (!body.token) throw new Error('El servidor no devolvió un token.');
     
     applyAuth(body.token, body.email, body.nombre);
+    restoreFormFromSession();
     state.loading = false;
     
     const next = sessionStorage.getItem(KEYS.next) || '/index.html#inicio';
@@ -129,6 +130,7 @@ export async function enviarAuth(path, payload) {
     const body = await api(path, { method: 'POST', body: payload, auth: false });
     if (!body.token) throw new Error('El servidor no devolvió un token.');
     applyAuth(body.token, body.email, body.nombre);
+    restoreFormFromSession();
     state.loading = false;
     const next = sessionStorage.getItem(KEYS.next) || '/index.html#inicio';
     let hash = next.includes('#') ? next.slice(next.indexOf('#') + 1) : 'inicio';
@@ -179,6 +181,7 @@ export async function analizar() {
     }
     state.result = sanitizeResult(data);
     persistSession();
+    savePerfilHogar(state.form);
     state.loading = false;
     if (state.auth) {
       try { state.historial = await api('/api/historial'); } catch (_) { /* */ }
@@ -234,6 +237,7 @@ export async function cargarHistorial() {
   render();
   try {
     state.historial = await api('/api/historial');
+    aplicarPerfilDesdeHistorial();
     if (state.detalleId) {
       const det = await api('/api/historial/' + state.detalleId);
       state.result = sanitizeResult(det);
@@ -293,8 +297,20 @@ export async function abrirDetalle(id) {
 export function queueLogin(tab, nextHash) {
   const next = '/index.html' + (nextHash || location.hash || '#inicio');
   sessionStorage.setItem(KEYS.next, next);
+  syncFormFromDom();
+  sessionStorage.setItem(KEYS.form, JSON.stringify(state.form));
   state.loginTab = tab === 'registro' ? 'registro' : 'login';
   go(tab === 'registro' ? 'entrar/registro' : 'entrar');
+}
+
+function restoreFormFromSession() {
+  try {
+    const raw = sessionStorage.getItem(KEYS.form);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      Object.assign(state.form, saved);
+    }
+  } catch (_) { /* ignore */ }
 }
 
 export function syncFormFromDom() {

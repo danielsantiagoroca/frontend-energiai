@@ -415,6 +415,21 @@ p { margin: 0; font-size: 16px; line-height: 1.6; color: var(--text-muted); }
 }
 .step .n { color: var(--green); font-size: 12px; font-weight: 500; }
 
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 24px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.section-title:first-of-type { margin-top: 16px; }
+.section-title .hint {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
 .tiles { grid-template-columns: repeat(3, 1fr); }
 [data-device="mobile"] .tiles { grid-template-columns: 1fr; }
 .tile {
@@ -619,11 +634,16 @@ p { margin: 0; font-size: 16px; line-height: 1.6; color: var(--text-muted); }
 
 .chart-wrap {
   overflow-x: auto;
+  overflow-y: hidden;
   background: var(--surface);
   border-radius: 16px;
   padding: 16px 12px 8px;
+  max-width: 100%;
 }
-.chart-wrap svg { width: 100%; height: auto; display: block; }
+.chart-wrap svg { 
+  display: block; 
+  min-width: max-content;
+}
 .chart-legend {
   display: flex;
   gap: 16px;

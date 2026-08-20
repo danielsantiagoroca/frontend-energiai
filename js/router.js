@@ -95,6 +95,13 @@ function bindForm() {
     el.addEventListener('change', () => {
       const name = el.name;
       if (!name) return;
+      
+      if (name === 'filtrar12') {
+        state.historialFiltrar12 = el.checked;
+        render();
+        return;
+      }
+      
       if (el.type === 'checkbox') state.form[name] = el.checked;
       else state.form[name] = el.value;
       

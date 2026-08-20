@@ -27,7 +27,8 @@ export const KEYS = {
   next: 'energiai.next',
   result: 'energiai.result',
   form: 'energiai.form',
-  authError: 'energiai.authError'
+  authError: 'energiai.authError',
+  perfilHogar: 'energiai.perfilHogar'
 };
 
 export const MESES = [
@@ -59,7 +60,7 @@ export const CAT = {
 export const WIZARD = [
   { key: 'tipo_inmueble', title: '¿Qué tipo de vivienda es?' },
   { key: 'month', title: '¿De qué mes es la factura?' },
-  { key: 'uso_horario_pico', title: '¿Usas horario pico?' },
+  { key: 'uso_horario_pico', title: '¿Usás horario pico? (17:00 a 22:00 hs)' },
   { key: 'horas_alto_consumo', title: '¿Cuántas horas de alto consumo por día?' },
   { key: 'cantidad_equipos', title: '¿Cuántos equipos hay?' },
   { key: 'consumo_mensual', title: '¿Cuántos kWh consumiste en el mes?' },

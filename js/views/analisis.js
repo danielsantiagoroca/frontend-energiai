@@ -2,7 +2,7 @@
  * Vista: Análisis / Formulario
  */
 
-import { state } from '../state.js';
+import { state, labelPerfilOrigen } from '../state.js';
 import { MESES, ANTIGUEDADES, WIZARD, YEARS } from '../config.js';
 import { esc, periodoOcupado } from '../utils.js';
 import { chromeA11y, chromeId, headerId, alertBox } from '../components.js';
@@ -87,6 +87,11 @@ export function renderAnalisis() {
   const f = state.form;
   const logged = Boolean(state.auth);
   const a11y = state.set === 'a11y';
+  const tienePerfilGuardado = f.tipo_inmueble || f.cantidad_equipos;
+  const perfilLabel = labelPerfilOrigen();
+  const perfilHint = perfilLabel 
+    ? `<span class="hint">(de ${perfilLabel})</span>` 
+    : (tienePerfilGuardado ? '<span class="hint">(recordado)</span>' : '');
   return `
     ${a11y ? chromeA11y() : chromeId()}
     <div class="main" id="contenido">
@@ -94,9 +99,8 @@ export function renderAnalisis() {
       <h1>Armá el pulso de tu hogar</h1>
       <p>Completá los datos de tu factura. ${logged ? 'Tu análisis se guardará en el historial.' : 'Sin cuenta, el resultado no se guarda.'}</p>
       ${alertBox()}
-      <div class="tiles">
-        ${tile('Casa')}${tile('Departamento')}${tile('Monoambiente')}
-      </div>
+      
+      <h2 class="section-title">Datos de la factura</h2>
       <div class="fields">
         <div class="field-ctl"><label for="year">Año</label>
           <select id="year" name="year" required>
@@ -111,7 +115,10 @@ export function renderAnalisis() {
               return `<option value="${i + 1}"${String(i + 1) === String(f.month) ? ' selected' : ''}${ocupado ? ' disabled' : ''}>${m}${ocupado ? ' (cargado)' : ''}</option>`;
             }).join('')}</select>
         </div>
-        <div class="field-ctl"><label for="uso_horario_pico">¿Usás horario pico?</label>
+        <div class="field-ctl"><label for="consumo_mensual">Consumo mensual en kWh</label>
+          <input id="consumo_mensual" name="consumo_mensual" type="number" min="80" max="1200" step="1" value="${esc(f.consumo_mensual)}" placeholder="Según tu factura (80-1200)" required>
+        </div>
+        <div class="field-ctl"><label for="uso_horario_pico">¿Usás horario pico? (17:00 a 22:00 hs)</label>
           <select id="uso_horario_pico" name="uso_horario_pico" required>
             <option value=""${!f.uso_horario_pico ? ' selected' : ''} disabled>Seleccioná</option>
             <option value="no"${f.uso_horario_pico === 'no' ? ' selected' : ''}>No</option>
@@ -121,17 +128,15 @@ export function renderAnalisis() {
         <div class="field-ctl"><label for="horas_alto_consumo">Horas de alto consumo por día</label>
           <input id="horas_alto_consumo" name="horas_alto_consumo" type="number" min="0" max="24" step="0.5" value="${esc(f.horas_alto_consumo)}" placeholder="Ej: 6" required>
         </div>
+      </div>
+      
+      <h2 class="section-title">Perfil del hogar${perfilHint ? ' ' + perfilHint : ''}</h2>
+      <div class="tiles">
+        ${tile('Casa')}${tile('Departamento')}${tile('Monoambiente')}
+      </div>
+      <div class="fields">
         <div class="field-ctl"><label for="cantidad_equipos">Cantidad de equipos eléctricos</label>
           <input id="cantidad_equipos" name="cantidad_equipos" type="number" min="0" max="50" step="1" value="${esc(f.cantidad_equipos)}" placeholder="Ej: 8" required>
-        </div>
-        <div class="field-ctl"><label for="consumo_mensual">Consumo mensual en kWh</label>
-          <input id="consumo_mensual" name="consumo_mensual" type="number" min="80" max="1200" step="1" value="${esc(f.consumo_mensual)}" placeholder="Según tu factura (80-1200)" required>
-        </div>
-        <div class="field-ctl"><label for="numero_personas">Personas en el hogar (opcional)</label>
-          <input id="numero_personas" name="numero_personas" type="number" min="1" step="1" value="${esc(f.numero_personas)}" placeholder="Opcional">
-        </div>
-        <div class="field-ctl"><label for="tarifa_electrica">Tarifa por kWh (opcional)</label>
-          <input id="tarifa_electrica" name="tarifa_electrica" type="number" min="0" step="0.01" value="${esc(f.tarifa_electrica)}" placeholder="Ej: 0.75">
         </div>
         <div class="field-ctl"><label for="antiguedad_electrodomesticos">Antigüedad de equipos (opcional)</label>
           <select id="antiguedad_electrodomesticos" name="antiguedad_electrodomesticos">
@@ -139,11 +144,17 @@ export function renderAnalisis() {
             ${ANTIGUEDADES.map((a) => `<option${a === f.antiguedad_electrodomesticos ? ' selected' : ''}>${a}</option>`).join('')}
           </select>
         </div>
+        <div class="field-ctl"><label for="numero_personas">Personas en el hogar (opcional)</label>
+          <input id="numero_personas" name="numero_personas" type="number" min="1" step="1" value="${esc(f.numero_personas)}" placeholder="Opcional">
+        </div>
+        <div class="field-ctl"><label for="tarifa_electrica">Tarifa por kWh (opcional)</label>
+          <input id="tarifa_electrica" name="tarifa_electrica" type="number" min="0" step="0.01" value="${esc(f.tarifa_electrica)}" placeholder="Ej: 0.75">
+        </div>
       </div>
       <div class="checks">
-        <label class="check"><input type="checkbox" name="tiene_calentador"${f.tiene_calentador ? ' checked' : ''}> Calentador / calefacción eléctrica</label>
         <label class="check"><input type="checkbox" name="tiene_aire_acondicionado"${f.tiene_aire_acondicionado ? ' checked' : ''}> Aire acondicionado</label>
         <label class="check"><input type="checkbox" name="tiene_iluminacion_led"${f.tiene_iluminacion_led ? ' checked' : ''}> Iluminación LED</label>
+        <label class="check"><input type="checkbox" name="tiene_calentador"${f.tiene_calentador ? ' checked' : ''}> Calentador / calefacción eléctrica</label>
         ${logged ? `<label class="check"><input type="checkbox" name="guardar"${f.guardar ? ' checked' : ''}> Guardar en historial</label>`
           : `<p class="caption" style="text-transform:none">Para guardar: <button class="link" type="button" data-action="login" data-next="#analisis">entrar</button>.</p>`}
       </div>

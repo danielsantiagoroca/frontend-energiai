@@ -15,8 +15,162 @@ function loadAuth() {
   };
 }
 
+const PERFIL_HOGAR_KEYS = [
+  'tipo_inmueble',
+  'tiene_aire_acondicionado',
+  'tiene_iluminacion_led',
+  'tiene_calentador',
+  'cantidad_equipos',
+  'antiguedad_electrodomesticos',
+  'numero_personas',
+  'tarifa_electrica'
+];
+
+function loadPerfilHogarLocal() {
+  try {
+    const raw = localStorage.getItem(KEYS.perfilHogar);
+    if (raw) return JSON.parse(raw);
+  } catch (_) { /* ignore */ }
+  return null;
+}
+
+export function savePerfilHogar(form) {
+  const perfil = {};
+  PERFIL_HOGAR_KEYS.forEach(k => {
+    if (form[k] !== undefined && form[k] !== '' && form[k] !== null) {
+      perfil[k] = form[k];
+    }
+  });
+  try {
+    localStorage.setItem(KEYS.perfilHogar, JSON.stringify(perfil));
+  } catch (_) { /* ignore */ }
+}
+
+function mesNumeroSimple(mes) {
+  if (mes == null) return 0;
+  const n = Number(mes);
+  if (n >= 1 && n <= 12) return n;
+  const nombres = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const idx = nombres.findIndex(m => m === String(mes).toLowerCase());
+  return idx > 0 ? idx : 0;
+}
+
+function periodoANumero(mes, anio) {
+  return (anio || 2000) * 12 + mesNumeroSimple(mes);
+}
+
+/**
+ * Busca el perfil del análisis cronológicamente más cercano (pero no posterior) al mes/año objetivo.
+ * Si no hay ninguno anterior, usa el más antiguo disponible.
+ */
+export function perfilMasCercano(historial, mesObjetivo, anioObjetivo) {
+  if (!historial?.length) return null;
+  
+  const objetivo = periodoANumero(mesObjetivo || new Date().getMonth() + 1, anioObjetivo || new Date().getFullYear());
+  
+  let mejor = null;
+  let mejorDist = Infinity;
+  let masCercanoAnterior = null;
+  let distAnterior = Infinity;
+  
+  for (const item of historial) {
+    const perfil = item.perfil_hogar || item.perfilHogar;
+    if (!perfil) continue;
+    
+    const mes = item.mes || item.month;
+    const anio = item.anio || item.year;
+    const periodo = periodoANumero(mes, anio);
+    const dist = Math.abs(objetivo - periodo);
+    
+    if (periodo <= objetivo && dist < distAnterior) {
+      distAnterior = dist;
+      masCercanoAnterior = perfil;
+    }
+    
+    if (dist < mejorDist) {
+      mejorDist = dist;
+      mejor = perfil;
+    }
+  }
+  
+  return masCercanoAnterior || mejor;
+}
+
+/**
+ * Aplica el perfil del historial al formulario actual.
+ * Llamar después de cargar el historial.
+ */
+export function aplicarPerfilDesdeHistorial() {
+  if (!state.historial?.length) return false;
+  
+  const { perfil, item } = perfilMasCercanoConItem(state.historial, state.form.month || (new Date().getMonth() + 1), state.form.year);
+  if (!perfil) return false;
+  
+  PERFIL_HOGAR_KEYS.forEach(k => {
+    const valor = perfil[k];
+    if (valor !== undefined && valor !== null && valor !== '') {
+      state.form[k] = valor;
+    }
+  });
+  
+  state.perfilOrigenMes = item?.mes || item?.month;
+  state.perfilOrigenAnio = item?.anio || item?.year;
+  
+  return true;
+}
+
+function perfilMasCercanoConItem(historial, mesObjetivo, anioObjetivo) {
+  if (!historial?.length) return { perfil: null, item: null };
+  
+  const objetivo = periodoANumero(mesObjetivo || new Date().getMonth() + 1, anioObjetivo || new Date().getFullYear());
+  
+  let mejorItem = null;
+  let mejorDist = Infinity;
+  let anteriorItem = null;
+  let distAnterior = Infinity;
+  
+  for (const item of historial) {
+    const perfil = item.perfil_hogar || item.perfilHogar;
+    if (!perfil) continue;
+    
+    const mes = item.mes || item.month;
+    const anio = item.anio || item.year;
+    const periodo = periodoANumero(mes, anio);
+    const dist = Math.abs(objetivo - periodo);
+    
+    if (periodo <= objetivo && dist < distAnterior) {
+      distAnterior = dist;
+      anteriorItem = item;
+    }
+    
+    if (dist < mejorDist) {
+      mejorDist = dist;
+      mejorItem = item;
+    }
+  }
+  
+  const selectedItem = anteriorItem || mejorItem;
+  return { 
+    perfil: selectedItem ? (selectedItem.perfil_hogar || selectedItem.perfilHogar) : null, 
+    item: selectedItem 
+  };
+}
+
+/**
+ * Retorna el label del mes/año de donde vino el perfil precargado, o null.
+ */
+export function labelPerfilOrigen() {
+  if (!state.perfilOrigenMes) return null;
+  const mesNum = mesNumeroSimple(state.perfilOrigenMes);
+  const nombres = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+  const mesCorto = mesNum > 0 ? nombres[mesNum] : state.perfilOrigenMes;
+  const anioCorto = state.perfilOrigenAnio ? String(state.perfilOrigenAnio).slice(-2) : '';
+  return anioCorto ? `${mesCorto} ${anioCorto}` : mesCorto;
+}
+
 export function defaultForm() {
-  return {
+  const base = {
     tipo_inmueble: '',
     month: '',
     year: new Date().getFullYear(),
@@ -32,6 +186,14 @@ export function defaultForm() {
     tarifa_electrica: '',
     guardar: true
   };
+  // Fallback a localStorage si el historial aún no está cargado
+  const perfil = loadPerfilHogarLocal();
+  if (perfil) {
+    PERFIL_HOGAR_KEYS.forEach(k => {
+      if (perfil[k] !== undefined) base[k] = perfil[k];
+    });
+  }
+  return base;
 }
 
 export const state = {
@@ -50,7 +212,10 @@ export const state = {
   loading: false,
   detalleId: null,
   wizardStep: 0,
-  comparar: { a: null, b: null }
+  comparar: { a: null, b: null },
+  historialFiltrar12: true,
+  perfilOrigenMes: null,
+  perfilOrigenAnio: null
 };
 
 export function applyAuth(token, email, nombre) {
