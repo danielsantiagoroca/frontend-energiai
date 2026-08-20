@@ -229,7 +229,10 @@ body.auth-page {
   background: transparent;
 }
 
-/* Modo claro en vista accesible: botones con alto contraste */
+/* Modo claro: barra accesibilidad con alto contraste */
+[data-theme="light"] .a11y-bar {
+  background: #e8e8e8;
+}
 [data-theme="light"] .a11y-bar .btn.ghost,
 [data-theme="light"] .a11y-bar .theme-toggle {
   color: #1a1a2e;
@@ -238,14 +241,7 @@ body.auth-page {
 }
 [data-theme="light"] .a11y-bar .btn.ghost:hover,
 [data-theme="light"] .a11y-bar .btn.ghost:focus {
-  background: rgba(26, 26, 46, 0.1);
-}
-[data-theme="light"] .a11y-view {
-  background: #f5f5f5;
-  color: #1a1a2e;
-}
-[data-theme="light"] .a11y-view .a11y-bar {
-  background: #e8e8e8;
+  background: rgba(26, 26, 46, 0.15);
 }
 
 .skip { color: inherit; font-size: 18px; font-weight: 500; text-decoration: underline; }
