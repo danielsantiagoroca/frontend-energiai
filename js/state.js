@@ -19,6 +19,7 @@ export function defaultForm() {
   return {
     tipo_inmueble: '',
     month: '',
+    year: new Date().getFullYear(),
     uso_horario_pico: '',
     horas_alto_consumo: '',
     cantidad_equipos: '',
@@ -42,12 +43,14 @@ export const state = {
   form: defaultForm(),
   result: null,
   historial: [],
+  periodosOcupados: [],
   error: null,
   notice: null,
   loginTab: 'login',
   loading: false,
   detalleId: null,
-  wizardStep: 0
+  wizardStep: 0,
+  comparar: { a: null, b: null }
 };
 
 export function applyAuth(token, email, nombre) {
@@ -120,6 +123,7 @@ export function facturaPayload() {
     tipo_inmueble: f.tipo_inmueble,
     horas_alto_consumo: Number(f.horas_alto_consumo),
     month: String(f.month),
+    year: Number(f.year || new Date().getFullYear()),
     tiene_aire_acondicionado: Boolean(f.tiene_aire_acondicionado),
     tiene_calentador: Boolean(f.tiene_calentador),
     tiene_iluminacion_led: Boolean(f.tiene_iluminacion_led)

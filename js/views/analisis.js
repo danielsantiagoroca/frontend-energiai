@@ -3,8 +3,8 @@
  */
 
 import { state } from '../state.js';
-import { MESES, ANTIGUEDADES, WIZARD } from '../config.js';
-import { esc } from '../utils.js';
+import { MESES, ANTIGUEDADES, WIZARD, YEARS } from '../config.js';
+import { esc, periodoOcupado } from '../utils.js';
 import { chromeA11y, chromeId, headerId, alertBox } from '../components.js';
 
 function tile(tipo) {
@@ -98,11 +98,18 @@ export function renderAnalisis() {
         ${tile('Casa')}${tile('Departamento')}${tile('Monoambiente')}
       </div>
       <div class="fields">
+        <div class="field-ctl"><label for="year">Año</label>
+          <select id="year" name="year" required>
+            ${YEARS.map((y) => `<option value="${y}"${Number(y) === Number(f.year) ? ' selected' : ''}>${y}</option>`).join('')}
+          </select>
+        </div>
         <div class="field-ctl"><label for="month">Mes de la factura</label>
           <select id="month" name="month" required>
             <option value=""${!f.month ? ' selected' : ''} disabled>Seleccioná el mes</option>
-            ${MESES.slice(1).map((m, i) =>
-            `<option value="${i + 1}"${String(i + 1) === String(f.month) ? ' selected' : ''}>${m}</option>`).join('')}</select>
+            ${MESES.slice(1).map((m, i) => {
+              const ocupado = periodoOcupado(String(i + 1), f.year);
+              return `<option value="${i + 1}"${String(i + 1) === String(f.month) ? ' selected' : ''}${ocupado ? ' disabled' : ''}>${m}${ocupado ? ' (cargado)' : ''}</option>`;
+            }).join('')}</select>
         </div>
         <div class="field-ctl"><label for="uso_horario_pico">¿Usás horario pico?</label>
           <select id="uso_horario_pico" name="uso_horario_pico" required>

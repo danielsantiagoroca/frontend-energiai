@@ -5,26 +5,28 @@
 import { KEYS } from './config.js';
 import { state, restoreSession } from './state.js';
 import { $, deviceDe } from './utils.js';
-import { api, cargarHistorial, setRouter } from './api.js';
+import { api, cargarHistorial, cargarPeriodosOcupados, setRouter } from './api.js';
 
 import { renderInicio } from './views/inicio.js';
 import { renderAnalisis } from './views/analisis.js';
 import { renderResultados } from './views/resultados.js';
 import { renderHistorial } from './views/historial.js';
 import { renderEntrar } from './views/entrar.js';
+import { renderComparar } from './views/comparar.js';
 
 const RENDER = {
   inicio: renderInicio,
   analisis: renderAnalisis,
   resultados: renderResultados,
   historial: renderHistorial,
-  entrar: renderEntrar
+  entrar: renderEntrar,
+  comparar: renderComparar
 };
 
 export function parseHash() {
   const raw = (location.hash || '#inicio').replace(/^#/, '');
   const [screen, id] = raw.split('/');
-  if (['inicio', 'analisis', 'resultados', 'historial', 'entrar'].includes(screen)) {
+  if (['inicio', 'analisis', 'resultados', 'historial', 'entrar', 'comparar'].includes(screen)) {
     state.screen = screen;
     state.detalleId = id || null;
     if (screen === 'entrar') state.loginTab = id === 'registro' ? 'registro' : 'login';
@@ -71,6 +73,22 @@ export function render() {
   }
 }
 
+function bindComparar() {
+  const selA = $('#comparar-a');
+  const selB = $('#comparar-b');
+  if (!selA || !selB) return;
+  const update = () => {
+    state.comparar = {
+      a: selA.value || null,
+      b: selB.value || null
+    };
+    render();
+    bindComparar();
+  };
+  selA.addEventListener('change', update);
+  selB.addEventListener('change', update);
+}
+
 function bindForm() {
   const main = $('.main') || document;
   main.querySelectorAll('input, select').forEach((el) => {
@@ -79,6 +97,10 @@ function bindForm() {
       if (!name) return;
       if (el.type === 'checkbox') state.form[name] = el.checked;
       else state.form[name] = el.value;
+      
+      if (name === 'year' && state.screen === 'analisis') {
+        render();
+      }
     });
   });
   const formLogin = $('#formLogin');
@@ -115,9 +137,16 @@ export async function onRoute() {
     state.error = oauthErr;
     sessionStorage.removeItem(KEYS.authError);
   }
-  if (state.screen === 'historial') {
+  if (state.screen === 'historial' || state.screen === 'comparar') {
     await cargarHistorial();
+    if (state.screen === 'comparar') {
+      render();
+      bindComparar();
+    }
     return;
+  }
+  if (state.screen === 'analisis' && state.auth) {
+    await cargarPeriodosOcupados();
   }
   if (state.screen === 'resultados' && state.auth && !state.historial.length) {
     try { 

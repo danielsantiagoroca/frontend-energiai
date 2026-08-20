@@ -256,6 +256,18 @@ export async function cargarHistorial() {
   }
 }
 
+export async function cargarPeriodosOcupados() {
+  if (!state.auth) {
+    state.periodosOcupados = [];
+    return;
+  }
+  try {
+    state.periodosOcupados = await api('/api/historial/periodos');
+  } catch (_) {
+    state.periodosOcupados = [];
+  }
+}
+
 export async function abrirDetalle(id) {
   state.error = null;
   state.loading = true;

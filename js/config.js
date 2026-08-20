@@ -42,6 +42,14 @@ export const ANTIGUEDADES = [
   'mayor a 10 años'
 ];
 
+// Años disponibles para selector (actual hacia atrás hasta 2020)
+export const YEARS = (() => {
+  const current = new Date().getFullYear();
+  const years = [];
+  for (let y = current; y >= 2020; y--) years.push(y);
+  return years;
+})();
+
 export const CAT = {
   EFICIENTE: 'Eficiente',
   MODERADO: 'Moderado',

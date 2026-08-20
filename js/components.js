@@ -59,6 +59,7 @@ export function navLinks() {
     <button class="link${state.screen === 'analisis' ? ' on' : ''}" type="button" data-go="analisis">Análisis</button>
     <button class="link${state.screen === 'resultados' ? ' on' : ''}" type="button" data-go="resultados">Resultados</button>
     <button class="link${state.screen === 'historial' ? ' on' : ''}" type="button" data-go="historial">Historial</button>
+    <button class="link${state.screen === 'comparar' ? ' on' : ''}" type="button" data-go="comparar">Comparar</button>
     <button class="link" type="button" data-action="a11y">${state.set === 'a11y' ? 'Vista estándar' : 'Accesible'}</button>
   </nav>`;
 }

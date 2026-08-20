@@ -106,3 +106,35 @@ export function labelMesItem(item) {
   const corto = n ? MESES[n].slice(0, 3) : '?';
   return y ? `${corto} ${String(y).slice(2)}` : corto;
 }
+
+export function formatTendencia(t) {
+  if (!t) return null;
+  const texto = String(t).replace(/_/g, ' ').trim();
+  return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+}
+
+export function probabilidadesHtml(result) {
+  const probs = pick(result, 'probabilidades');
+  if (!probs || typeof probs !== 'object') return null;
+  const cats = ['EFICIENTE', 'MODERADO', 'INEFICIENTE'];
+  const labels = { EFICIENTE: 'Eficiente', MODERADO: 'Moderado', INEFICIENTE: 'Ineficiente' };
+  const items = cats.map((cat) => {
+    const val = probs[cat] ?? probs[cat.toLowerCase()] ?? probs[labels[cat]];
+    if (val == null) return null;
+    const pct = (Number(val) * 100).toFixed(0);
+    return { label: labels[cat], pct };
+  }).filter(Boolean);
+  if (!items.length) return null;
+  return items;
+}
+
+import { state } from './state.js';
+
+export function periodoOcupado(mes, year) {
+  if (!state.periodosOcupados?.length) return false;
+  const mesStr = String(mes);
+  const anio = Number(year);
+  return state.periodosOcupados.some(
+    (p) => String(p.mes) === mesStr && Number(p.anio) === anio
+  );
+}

@@ -35,7 +35,14 @@ export function renderInicio() {
           ${alertBox()}
           <div class="cta-row">
             <button class="btn primary" type="button" data-go="analisis">Comenzar análisis</button>
-            <span class="caption" style="text-transform:none">${state.auth ? 'Sesión activa · podés guardar' : '2 min · sin cuenta, o entrá para historial'}</span>
+            ${state.device !== 'web' ? `
+              ${state.auth 
+                ? `<span class="user-chip" style="font-size:14px" title="${state.auth.email}">${state.auth.nombre || state.auth.email}</span>
+                   <button class="btn ghost" type="button" data-action="logout" style="padding:10px 16px;min-height:40px;font-size:14px">Salir</button>`
+                : `<button class="btn ghost" type="button" data-action="login" style="padding:10px 16px;min-height:40px;font-size:14px">Entrar</button>
+                   <button class="btn navy" type="button" data-action="registro" style="padding:10px 16px;min-height:40px;font-size:14px">Crear cuenta</button>`
+              }` 
+            : `<span class="caption" style="text-transform:none">${state.auth ? 'Sesión activa · podés guardar' : '2 min · sin cuenta, o entrá para historial'}</span>`}
           </div>
         </div>
         <aside class="meter">

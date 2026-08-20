@@ -4,7 +4,7 @@
 
 import { state } from '../state.js';
 import { MESES } from '../config.js';
-import { esc, etiquetaCat, fmt, fmtMoney, pick, pctLabel, labelMesItem } from '../utils.js';
+import { esc, etiquetaCat, fmt, fmtMoney, pick, pctLabel, labelMesItem, formatTendencia, probabilidadesHtml, mesNumero } from '../utils.js';
 import { chromeA11y, chromeId, headerId, alertBox, hatch } from '../components.js';
 
 function recsHtml(lista) {
@@ -21,11 +21,21 @@ function cifra(label, val) {
   return `<div class="field"><div class="caption">${esc(label)}</div><div class="val">${esc(val)}</div></div>`;
 }
 
+function probsHtml(result) {
+  const probs = probabilidadesHtml(result);
+  if (!probs || !probs.length) return '';
+  return `<div class="stack" style="margin-bottom:12px">
+    <div class="caption">Probabilidad por categoría</div>
+    <div class="costos-grid">${probs.map((p) => 
+      `<div class="field"><div class="caption">${esc(p.label)}</div><div class="val">${p.pct}%</div></div>`
+    ).join('')}</div>
+  </div>`;
+}
+
 function costosHtml(costos, resumen, result) {
   const c = costos || {};
   const r = resumen || {};
   const iie = result ? pick(result, 'indiceEficiencia', 'indice_eficiencia') : null;
-  const bench = c.benchmark || {};
   const proy = c.proyeccion_estacional || c.proyeccionEstacional || [];
   const filas = [
     cifra('Costo base', c.costo_bruto_mensual != null ? `${fmtMoney(c.costo_bruto_mensual)} USD` : null),
@@ -38,8 +48,7 @@ function costosHtml(costos, resumen, result) {
     cifra('Ahorro posible / mes', c.ahorro_potencial_mensual != null ? `${fmtMoney(c.ahorro_potencial_mensual)} USD` : null),
     cifra('Ahorro posible / año', c.ahorro_potencial_anual != null ? `${fmtMoney(c.ahorro_potencial_anual)} USD` : null),
     cifra('Consumo por persona', iie != null ? `${fmt(iie, 1)} kWh` : null),
-    cifra('Comparación', bench.posicion_rango || bench.posicionRango),
-    cifra('Tendencia', r.tendencia),
+    cifra('Tendencia', formatTendencia(r.tendencia)),
     cifra('Análisis previos', r.analisis_previos != null ? r.analisis_previos : null),
     cifra('Promedio anterior', r.consumo_promedio_kwh != null ? `${fmt(r.consumo_promedio_kwh, 0)} kWh` : null)
   ].join('');
@@ -48,15 +57,23 @@ function costosHtml(costos, resumen, result) {
         cifra(p.estacion + (p.es_estacion_actual || p.esEstacionActual ? ' (actual)' : ''),
           fmtMoney(pick(p, 'costo_mensual_estimado', 'costoMensualEstimado')) + ' USD')).join('')}</div></div>`
     : '';
-  if (!filas.replace(/\s/g, '') && !proj) {
+  const probabilidades = probsHtml(result);
+  if (!filas.replace(/\s/g, '') && !proj && !probabilidades) {
     return `<p>Entrá con tu cuenta para ver el desglose de costos y tu historial.</p>`;
   }
-  return `<div class="costos-grid">${filas}</div>${proj}`;
+  return `${probabilidades}<div class="costos-grid">${filas}</div>${proj}`;
 }
 
 export function chartHistorial(items) {
   if (!items.length) return '<p>No hay análisis guardados todavía.</p>';
-  const ordered = [...items].reverse();
+  const ordered = [...items].sort((a, b) => {
+    const anioA = pick(a, 'anio') || new Date(pick(a, 'creadoEn', 'creado_en')).getFullYear();
+    const anioB = pick(b, 'anio') || new Date(pick(b, 'creadoEn', 'creado_en')).getFullYear();
+    if (anioA !== anioB) return anioA - anioB;
+    const mesA = mesNumero(pick(a, 'mes', 'month')) || 0;
+    const mesB = mesNumero(pick(b, 'mes', 'month')) || 0;
+    return mesA - mesB;
+  });
   const kwhs = ordered.map((it) => Number(pick(it, 'consumoMensual', 'consumo_mensual')) || 0);
   const co2s = ordered.map((it) => {
     const v = pick(it, 'huella_carbono_kg_co2e_mes', 'huellaCarbonoKgCo2eMes');
