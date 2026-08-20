@@ -1,8 +1,11 @@
 # Plan de Reestructuración — Frontend EnergiAI
 
+> **Estado:** ✅ COMPLETADO (Agosto 2026)  
+> Este documento es histórico. Describe el plan original de reestructuración que ya fue ejecutado.
+
 **Dominio de despliegue:** https://energi-ai.netlify.app  
 **Repo:** `danielsantiagoroca/frontend-energiai`  
-**API Backend:** https://energiai-api.example.com (a configurar)
+**API Backend:** http://146.181.33.44:8080 (OCI, vía proxy Netlify)
 
 ---
 
