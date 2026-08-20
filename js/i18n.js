@@ -151,6 +151,15 @@ export const TEXTS = {
   'valid.equipos': { es: 'Ingresá la cantidad de equipos', en: 'Enter the number of appliances' },
   'valid.consumo': { es: 'Ingresá el consumo mensual', en: 'Enter the monthly consumption' },
   'valid.consumoRango': { es: 'El consumo debe estar entre 80 y 1200 kWh', en: 'Consumption must be between 80 and 1200 kWh' },
+
+  // === TTS (Text-to-Speech) ===
+  'speak.inicio': { es: 'EnergiAI. Analizá el consumo de tu casa. Podés empezar sin cuenta.', en: 'EnergiAI. Analyze your home energy consumption. You can start without an account.' },
+  'speak.analisis': { es: 'Completá los datos de la factura y calculá el perfil.', en: 'Fill in the invoice data and calculate your profile.' },
+  'speak.resultados': { es: 'Categoría {cat}.', en: 'Category {cat}.' },
+  'speak.sin_resultado': { es: 'Todavía no hay un resultado.', en: 'No result yet.' },
+  'speak.entrar': { es: 'Entrá para ver el historial o guardar el análisis.', en: 'Sign in to view history or save your analysis.' },
+  'speak.historial': { es: 'Historial de análisis. Seleccioná un período para ver detalles.', en: 'Analysis history. Select a period to view details.' },
+  'speak.comparar': { es: 'Compará dos períodos de consumo.', en: 'Compare two consumption periods.' },
 };
 
 let currentLang = localStorage.getItem(KEYS.lang) || 'es';

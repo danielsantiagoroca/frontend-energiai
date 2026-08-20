@@ -4,7 +4,7 @@
 
 import { state } from './state.js';
 import { esc, etiquetaCat } from './utils.js';
-import { t } from './i18n.js';
+import { t, getLang } from './i18n.js';
 
 const LAMP = `
   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -122,13 +122,15 @@ export function alertBox() {
 
 export function speak() {
   const map = {
-    inicio: 'EnergiAI. Analizá el consumo de tu casa. Podés empezar sin cuenta.',
-    analisis: 'Completá los datos de la factura y calculá el perfil.',
-    resultados: state.result ? `Categoría ${etiquetaCat(state.result.categoria)}.` : 'Todavía no hay un resultado.',
-    entrar: 'Entrá para ver el historial o guardar el análisis.',
+    inicio: t('speak.inicio'),
+    analisis: t('speak.analisis'),
+    resultados: state.result ? t('speak.resultados').replace('{cat}', etiquetaCat(state.result.categoria)) : t('speak.sin_resultado'),
+    entrar: t('speak.entrar'),
+    historial: t('speak.historial'),
+    comparar: t('speak.comparar'),
   };
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(map[state.screen] || '');
-  u.lang = 'es';
+  u.lang = getLang() === 'en' ? 'en-US' : 'es-AR';
   window.speechSynthesis.speak(u);
 }
