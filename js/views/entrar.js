@@ -4,6 +4,7 @@
 
 import { state } from '../state.js';
 import { chromeA11y, chromeId, headerId, alertBox } from '../components.js';
+import { t } from '../i18n.js';
 
 export function renderEntrar() {
   const a11y = state.set === 'a11y';
@@ -12,29 +13,29 @@ export function renderEntrar() {
     ${a11y ? chromeA11y() : chromeId()}
     <div class="main" id="contenido">
       ${a11y ? '' : headerId()}
-      <h1>${registro ? 'Creá tu cuenta.' : 'Tu casa, en claro.'}</h1>
-      <p>Entrá para ver el historial y guardar análisis. El diagnóstico que ya calculaste no se pierde.</p>
+      <h1>${registro ? t('auth.creatuCuenta') : t('auth.tuCasa')}</h1>
+      <p>${t('auth.paraHistorial')}</p>
       ${alertBox()}
       <div class="auth-tabs">
-        <button class="btn ${registro ? 'ghost' : 'navy'}" type="button" data-action="login">Entrar</button>
-        <button class="btn ${registro ? 'navy' : 'ghost'}" type="button" data-action="registro">Crear cuenta</button>
+        <button class="btn ${registro ? 'ghost' : 'navy'}" type="button" data-action="login">${t('auth.entrar')}</button>
+        <button class="btn ${registro ? 'navy' : 'ghost'}" type="button" data-action="registro">${t('auth.crearCuenta')}</button>
       </div>
       ${registro ? `
         <form id="formRegistro" class="stack">
-          <div class="field-ctl"><label for="regNombre">Nombre</label>
+          <div class="field-ctl"><label for="regNombre">${t('auth.nombre')}</label>
             <input id="regNombre" name="nombre" type="text" autocomplete="name"></div>
-          <div class="field-ctl"><label for="regEmail">Email</label>
+          <div class="field-ctl"><label for="regEmail">${t('auth.email')}</label>
             <input id="regEmail" name="email" type="email" autocomplete="username" required></div>
-          <div class="field-ctl"><label for="regPassword">Contraseña (mínimo 8)</label>
+          <div class="field-ctl"><label for="regPassword">${t('auth.passwordMin')}</label>
             <input id="regPassword" name="password" type="password" autocomplete="new-password" minlength="8" required></div>
-          <button class="btn primary" type="submit">${state.loading ? 'Creando…' : 'Crear cuenta'}</button>
+          <button class="btn primary" type="submit">${state.loading ? t('auth.creando') : t('auth.crearCuenta')}</button>
         </form>` : `
         <form id="formLogin" class="stack">
-          <div class="field-ctl"><label for="loginEmail">Email</label>
+          <div class="field-ctl"><label for="loginEmail">${t('auth.email')}</label>
             <input id="loginEmail" name="email" type="email" autocomplete="username" required></div>
-          <div class="field-ctl"><label for="loginPassword">Contraseña</label>
+          <div class="field-ctl"><label for="loginPassword">${t('auth.password')}</label>
             <input id="loginPassword" name="password" type="password" autocomplete="current-password" required></div>
-          <button class="btn primary" type="submit"${state.loading ? ' disabled' : ''}>${state.loading ? 'Entrando…' : 'Entrar'}</button>
+          <button class="btn primary" type="submit"${state.loading ? ' disabled' : ''}>${state.loading ? t('auth.entrando') : t('auth.entrar')}</button>
         </form>`}
       <div class="google-signin-wrapper">
         <div id="google-signin-btn"></div>
@@ -45,7 +46,7 @@ export function renderEntrar() {
             <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
             <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
           </svg>
-          Continuar con Google
+          ${t('auth.googleContinue')}
         </button>
       </div>
     </div>`;

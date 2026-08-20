@@ -201,6 +201,7 @@ export const state = {
   device: deviceDe(),
   screen: 'inicio',
   theme: localStorage.getItem(KEYS.theme) || 'light',
+  lang: localStorage.getItem(KEYS.lang) || 'es',
   auth: loadAuth(),
   form: defaultForm(),
   result: null,

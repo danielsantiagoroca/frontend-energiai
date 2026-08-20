@@ -5,6 +5,7 @@
 
 import { KEYS, CONFIG } from './config.js';
 import { state, logout, defaultForm } from './state.js';
+import { setLang } from './i18n.js';
 import { $ } from './utils.js';
 import { deviceDe } from './utils.js';
 import { 
@@ -64,7 +65,7 @@ export function renderGoogleButton() {
     text: 'continue_with',
     shape: 'rectangular',
     width: 280,
-    locale: 'es'
+    locale: state.lang === 'en' ? 'en' : 'es'
   });
 }
 
@@ -115,6 +116,12 @@ function setupEventListeners() {
     if (btn.dataset.action === 'theme') {
       state.theme = state.theme === 'dark' ? 'light' : 'dark';
       localStorage.setItem(KEYS.theme, state.theme);
+      render();
+    }
+    
+    if (btn.dataset.action === 'lang') {
+      state.lang = state.lang === 'es' ? 'en' : 'es';
+      setLang(state.lang);
       render();
     }
     

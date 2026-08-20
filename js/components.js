@@ -4,6 +4,7 @@
 
 import { state } from './state.js';
 import { esc, etiquetaCat } from './utils.js';
+import { t } from './i18n.js';
 
 const LAMP = `
   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -31,10 +32,23 @@ export function bannerBrand(size = '') {
 
 export function lamp(a11y) {
   const dark = state.theme === 'dark';
-  const label = dark ? 'Modo claro' : 'Modo oscuro';
+  const label = dark ? t('theme.claro') : t('theme.oscuro');
   const cls = `theme-toggle${dark ? ' filled' : ''}${a11y ? ' a11y' : ''}`;
   return `<button class="${cls}" type="button" data-action="theme" aria-pressed="${dark}" aria-label="${label}" title="${label}">
     ${LAMP}${a11y ? `<span>${label}</span>` : ''}
+  </button>`;
+}
+
+const FLAG_ES = `<svg viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#c60b1e"/><rect y="4" width="24" height="8" fill="#ffc400"/></svg>`;
+const FLAG_EN = `<svg viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#012169"/><path d="M0,0 L24,16 M24,0 L0,16" stroke="#fff" stroke-width="2.5"/><path d="M0,0 L24,16 M24,0 L0,16" stroke="#c8102e" stroke-width="1.5"/><path d="M12,0 V16 M0,8 H24" stroke="#fff" stroke-width="4"/><path d="M12,0 V16 M0,8 H24" stroke="#c8102e" stroke-width="2.5"/></svg>`;
+
+export function langToggle(a11y = false) {
+  const isEn = state.lang === 'en';
+  const label = isEn ? 'Español' : 'English';
+  const flag = isEn ? FLAG_ES : FLAG_EN;
+  const cls = `lang-toggle${a11y ? ' a11y' : ''}`;
+  return `<button class="${cls}" type="button" data-action="lang" aria-label="${label}" title="${label}">
+    ${flag}${a11y ? `<span>${isEn ? 'ES' : 'EN'}</span>` : ''}
   </button>`;
 }
 
@@ -46,21 +60,21 @@ export function authButtons(hideIfLoginScreen = false) {
   if (state.auth) {
     const who = state.auth.nombre || state.auth.email;
     return `<span class="user-chip" title="${esc(state.auth.email)}">${esc(who)}</span>
-      <button class="btn ghost" type="button" data-action="logout">Salir</button>`;
+      <button class="btn ghost" type="button" data-action="logout">${t('auth.salir')}</button>`;
   }
   if (hideIfLoginScreen && state.screen === 'entrar') return '';
-  return `<button class="btn ghost" type="button" data-action="login">Entrar</button>
-    <button class="btn primary" type="button" data-action="registro">Crear cuenta</button>`;
+  return `<button class="btn ghost" type="button" data-action="login">${t('auth.entrar')}</button>
+    <button class="btn primary" type="button" data-action="registro">${t('auth.crearCuenta')}</button>`;
 }
 
 export function navLinks() {
   return `<nav class="nav">
-    <button class="link${state.screen === 'inicio' ? ' on' : ''}" type="button" data-go="inicio">Inicio</button>
-    <button class="link${state.screen === 'analisis' ? ' on' : ''}" type="button" data-go="analisis">Análisis</button>
-    <button class="link${state.screen === 'resultados' ? ' on' : ''}" type="button" data-go="resultados">Resultados</button>
-    <button class="link${state.screen === 'historial' ? ' on' : ''}" type="button" data-go="historial">Historial</button>
-    <button class="link${state.screen === 'comparar' ? ' on' : ''}" type="button" data-go="comparar">Comparar</button>
-    <button class="link" type="button" data-action="a11y">${state.set === 'a11y' ? 'Vista estándar' : 'Accesible'}</button>
+    <button class="link${state.screen === 'inicio' ? ' on' : ''}" type="button" data-go="inicio">${t('nav.inicio')}</button>
+    <button class="link${state.screen === 'analisis' ? ' on' : ''}" type="button" data-go="analisis">${t('nav.analisis')}</button>
+    <button class="link${state.screen === 'resultados' ? ' on' : ''}" type="button" data-go="resultados">${t('nav.resultados')}</button>
+    <button class="link${state.screen === 'historial' ? ' on' : ''}" type="button" data-go="historial">${t('nav.historial')}</button>
+    <button class="link${state.screen === 'comparar' ? ' on' : ''}" type="button" data-go="comparar">${t('nav.comparar')}</button>
+    <button class="link" type="button" data-action="a11y">${state.set === 'a11y' ? t('nav.vistaEstandar') : t('nav.accesible')}</button>
   </nav>`;
 }
 
@@ -71,7 +85,7 @@ export function headerId() {
   return `<div class="header">
     <a href="#inicio">${lockup()}</a>
     ${navLinks()}
-    <div class="header-actions">${lamp(false)}${authButtons(true)}</div>
+    <div class="header-actions">${langToggle(false)}${lamp(false)}${authButtons(true)}</div>
   </div>`;
 }
 
@@ -83,17 +97,19 @@ export function chromeId() {
   return `<div class="topbar">
     <a class="brand" href="#inicio">${brand}</a>
     <div class="pulse"></div>
+    ${langToggle(false)}
     ${lamp(false)}
   </div>`;
 }
 
 export function chromeA11y() {
   return `<div class="a11y-bar">
-    <a class="skip" href="#contenido">Saltar al contenido</a>
+    <a class="skip" href="#contenido">${t('a11y.saltar')}</a>
     <div class="header-actions">
-      <button class="btn ghost" type="button" data-action="listen" style="min-height:56px">Escuchar</button>
+      <button class="btn ghost" type="button" data-action="listen" style="min-height:56px">${t('a11y.escuchar')}</button>
+      ${langToggle(true)}
       ${lamp(true)}
-      <button class="btn ghost" type="button" data-action="a11y">Vista estándar</button>
+      <button class="btn ghost" type="button" data-action="a11y">${t('nav.vistaEstandar')}</button>
     </div>
   </div>`;
 }

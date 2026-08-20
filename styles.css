@@ -333,6 +333,37 @@ body.auth-page {
 }
 .theme-toggle:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1.5px solid var(--lamp-fg);
+  background: var(--lamp-bg);
+  color: var(--lamp-fg);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+.lang-toggle svg { width: 20px; height: 14px; border-radius: 2px; }
+.lang-toggle.a11y {
+  width: auto;
+  min-height: 56px;
+  padding: 0 16px;
+  font: 500 18px/1 Poppins, sans-serif;
+  border-width: 2px;
+}
+.lang-toggle:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+[data-theme="light"] .a11y-bar .lang-toggle {
+  color: var(--a11y-bar-text);
+  border-color: var(--a11y-bar-text);
+  box-shadow: inset 0 0 0 2px var(--a11y-bar-text);
+}
+
 .kicker {
   display: inline-flex;
   align-items: center;

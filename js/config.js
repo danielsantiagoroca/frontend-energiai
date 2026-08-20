@@ -24,6 +24,7 @@ export const KEYS = {
   nombre: 'energiai.nombre',
   theme: 'energiai-theme',
   set: 'energiai-set',
+  lang: 'energiai-lang',
   next: 'energiai.next',
   result: 'energiai.result',
   form: 'energiai.form',
