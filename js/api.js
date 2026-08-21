@@ -144,9 +144,10 @@ export async function enviarAuth(path, payload) {
 }
 
 async function postAnalisis(guardar) {
+  const { getLang } = await import('./i18n.js');
   return api('/api/analisis', {
     method: 'POST',
-    body: { factura: facturaPayload(), guardar }
+    body: { factura: facturaPayload(), guardar, idioma: getLang() }
   });
 }
 
@@ -206,9 +207,10 @@ export async function guardarAnalisis() {
   state.loading = true;
   render();
   try {
+    const { getLang } = await import('./i18n.js');
     const data = await api('/api/analisis', {
       method: 'POST',
-      body: { factura: facturaPayload(), guardar: true }
+      body: { factura: facturaPayload(), guardar: true, idioma: getLang() }
     });
     state.result = sanitizeResult(data);
     persistSession();

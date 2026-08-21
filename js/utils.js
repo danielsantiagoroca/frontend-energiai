@@ -3,6 +3,7 @@
  */
 
 import { MESES, CAT } from './config.js';
+import { t, tMonth, tMonthShort } from './i18n.js';
 
 export function $(sel, root = document) {
   return root.querySelector(sel);
@@ -26,7 +27,11 @@ export function mesNumero(valor) {
 
 export function etiquetaCat(c) {
   if (!c) return '—';
-  return CAT[c] || CAT[String(c).toUpperCase()] || String(c);
+  const key = String(c).toUpperCase();
+  if (key === 'EFICIENTE') return t('cat.eficiente');
+  if (key === 'MODERADO') return t('cat.moderado');
+  if (key === 'INEFICIENTE') return t('cat.ineficiente');
+  return CAT[c] || CAT[key] || String(c);
 }
 
 export function fmt(n, d = 1) {
@@ -104,7 +109,7 @@ export function labelMesItem(item) {
   const anio = pick(item, 'anio');
   const creado = pick(item, 'creadoEn', 'creado_en');
   const y = anio || (creado ? new Date(creado).getFullYear() : '');
-  const corto = n ? MESES[n].slice(0, 3) : '?';
+  const corto = n ? tMonthShort(n) : '?';
   return y ? `${corto} ${String(y).slice(2)}` : corto;
 }
 
@@ -118,12 +123,12 @@ export function probabilidadesHtml(result) {
   const probs = pick(result, 'probabilidades');
   if (!probs || typeof probs !== 'object') return null;
   const cats = ['EFICIENTE', 'MODERADO', 'INEFICIENTE'];
-  const labels = { EFICIENTE: 'Eficiente', MODERADO: 'Moderado', INEFICIENTE: 'Ineficiente' };
+  const labelsEs = { EFICIENTE: 'Eficiente', MODERADO: 'Moderado', INEFICIENTE: 'Ineficiente' };
   const items = cats.map((cat) => {
-    const val = probs[cat] ?? probs[cat.toLowerCase()] ?? probs[labels[cat]];
+    const val = probs[cat] ?? probs[cat.toLowerCase()] ?? probs[labelsEs[cat]];
     if (val == null) return null;
     const pct = (Number(val) * 100).toFixed(0);
-    return { label: labels[cat], pct };
+    return { label: etiquetaCat(cat), pct };
   }).filter(Boolean);
   if (!items.length) return null;
   return items;

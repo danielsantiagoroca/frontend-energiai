@@ -182,6 +182,20 @@ export const TEXTS = {
   'mes.11': { es: 'Noviembre', en: 'November' },
   'mes.12': { es: 'Diciembre', en: 'December' },
   
+  // === MESES CORTOS ===
+  'mes.short.1': { es: 'Ene', en: 'Jan' },
+  'mes.short.2': { es: 'Feb', en: 'Feb' },
+  'mes.short.3': { es: 'Mar', en: 'Mar' },
+  'mes.short.4': { es: 'Abr', en: 'Apr' },
+  'mes.short.5': { es: 'May', en: 'May' },
+  'mes.short.6': { es: 'Jun', en: 'Jun' },
+  'mes.short.7': { es: 'Jul', en: 'Jul' },
+  'mes.short.8': { es: 'Ago', en: 'Aug' },
+  'mes.short.9': { es: 'Sep', en: 'Sep' },
+  'mes.short.10': { es: 'Oct', en: 'Oct' },
+  'mes.short.11': { es: 'Nov', en: 'Nov' },
+  'mes.short.12': { es: 'Dic', en: 'Dec' },
+  
   // === VALIDACIÓN ===
   'valid.tipoVivienda': { es: 'Seleccioná el tipo de vivienda', en: 'Select the home type' },
   'valid.mes': { es: 'Seleccioná el mes de la factura', en: 'Select the bill month' },
@@ -220,4 +234,8 @@ export function t(key) {
 
 export function tMonth(n) {
   return t(`mes.${n}`);
+}
+
+export function tMonthShort(n) {
+  return t(`mes.short.${n}`);
 }
