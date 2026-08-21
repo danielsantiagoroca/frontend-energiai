@@ -13,7 +13,7 @@ function recsHtml(lista) {
   return items.map((txt, i) => `
     <div class="rec">
       <span class="n">${String(i + 1).padStart(2, '0')}</span>
-      <div><p style="color:inherit">${esc(txt)}</p></div>
+      <div><p class="rec-text" style="color:inherit" data-original="${esc(txt)}">${esc(txt)}</p></div>
     </div>`).join('');
 }
 
@@ -184,4 +184,22 @@ export function renderResultados() {
         <button class="btn ghost" type="button" data-go="historial">${t('resultados.verHistorial')}</button>
       </div>
     </div>`;
+}
+
+export async function translateRecommendations() {
+  const { getLang } = await import('../i18n.js');
+  if (getLang() === 'es') return;
+  
+  const { translateArray } = await import('../translate.js');
+  const recElements = document.querySelectorAll('.rec-text[data-original]');
+  if (!recElements.length) return;
+  
+  const originals = Array.from(recElements).map(el => el.dataset.original);
+  const translated = await translateArray(originals);
+  
+  recElements.forEach((el, i) => {
+    if (translated[i] && translated[i] !== originals[i]) {
+      el.textContent = translated[i];
+    }
+  });
 }

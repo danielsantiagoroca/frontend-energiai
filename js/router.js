@@ -9,7 +9,7 @@ import { api, cargarHistorial, cargarPeriodosOcupados, setRouter } from './api.j
 
 import { renderInicio } from './views/inicio.js';
 import { renderAnalisis } from './views/analisis.js';
-import { renderResultados } from './views/resultados.js';
+import { renderResultados, translateRecommendations } from './views/resultados.js';
 import { renderHistorial } from './views/historial.js';
 import { renderEntrar } from './views/entrar.js';
 import { renderComparar } from './views/comparar.js';
@@ -167,6 +167,10 @@ export async function onRoute() {
     }
   }
   render();
+  
+  if (state.screen === 'resultados') {
+    translateRecommendations().catch(() => {});
+  }
 }
 
 export function initRouter() {

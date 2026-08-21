@@ -68,24 +68,32 @@ export function authButtons(hideIfLoginScreen = false) {
 }
 
 export function navLinks() {
-  return `<nav class="nav">
-    <button class="link${state.screen === 'inicio' ? ' on' : ''}" type="button" data-go="inicio">${t('nav.inicio')}</button>
-    <button class="link${state.screen === 'analisis' ? ' on' : ''}" type="button" data-go="analisis">${t('nav.analisis')}</button>
-    <button class="link${state.screen === 'resultados' ? ' on' : ''}" type="button" data-go="resultados">${t('nav.resultados')}</button>
-    <button class="link${state.screen === 'historial' ? ' on' : ''}" type="button" data-go="historial">${t('nav.historial')}</button>
-    <button class="link${state.screen === 'comparar' ? ' on' : ''}" type="button" data-go="comparar">${t('nav.comparar')}</button>
-    <button class="link" type="button" data-action="a11y">${state.set === 'a11y' ? t('nav.vistaEstandar') : t('nav.accesible')}</button>
+  return `<nav class="nav-scroll">
+    <div class="nav d-flex gap-1 gap-sm-2">
+      <button class="link${state.screen === 'inicio' ? ' on' : ''}" type="button" data-go="inicio">${t('nav.inicio')}</button>
+      <button class="link${state.screen === 'analisis' ? ' on' : ''}" type="button" data-go="analisis">${t('nav.analisis')}</button>
+      <button class="link${state.screen === 'resultados' ? ' on' : ''}" type="button" data-go="resultados">${t('nav.resultados')}</button>
+      <button class="link${state.screen === 'historial' ? ' on' : ''}" type="button" data-go="historial">${t('nav.historial')}</button>
+      <button class="link${state.screen === 'comparar' ? ' on' : ''}" type="button" data-go="comparar">${t('nav.comparar')}</button>
+      <button class="link" type="button" data-action="a11y">${state.set === 'a11y' ? t('nav.vistaEstandar') : t('nav.accesible')}</button>
+    </div>
   </nav>`;
 }
 
 export function headerId() {
   if (state.device !== 'web') {
-    return `<div class="header">${navLinks()}<div class="header-actions">${authButtons(true)}</div></div>`;
+    // En móvil/tablet: solo navegación, los controles están en el topbar
+    return `<div class="header">
+      ${navLinks()}
+    </div>`;
   }
-  return `<div class="header">
-    <a href="#inicio">${lockup()}</a>
-    ${navLinks()}
-    <div class="header-actions">${langToggle(false)}${lamp(false)}${authButtons(true)}</div>
+  return `<div class="header d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 gap-lg-3">
+    <div class="d-flex align-items-center justify-content-between gap-2">
+      <a href="#inicio" class="d-none d-md-inline-block flex-shrink-0">${lockup()}</a>
+      <div class="header-actions d-flex d-lg-none align-items-center gap-2 flex-shrink-0">${langToggle(false)}${lamp(false)}${authButtons(true)}</div>
+    </div>
+    <div class="flex-grow-1">${navLinks()}</div>
+    <div class="header-actions d-none d-lg-flex align-items-center gap-2 flex-shrink-0">${langToggle(false)}${lamp(false)}${authButtons(true)}</div>
   </div>`;
 }
 
@@ -96,9 +104,12 @@ export function chromeId() {
   const brand = state.device === 'tablet' ? lockup({ compact: true, inverse: true }) : markOnly();
   return `<div class="topbar">
     <a class="brand" href="#inicio">${brand}</a>
-    <div class="pulse"></div>
-    ${langToggle(false)}
-    ${lamp(false)}
+    <div class="pulse d-none d-sm-block"></div>
+    <div class="topbar-actions d-flex align-items-center gap-2">
+      ${langToggle(false)}
+      ${lamp(false)}
+      ${authButtons(true)}
+    </div>
   </div>`;
 }
 
